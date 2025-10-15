@@ -1,6 +1,6 @@
 import { App } from "obsidian";
 import { ISettings } from "./settings";
-import { ISubTask, ITask } from "./things";
+import { ISubTask, ITask } from "./omnifocus";
 import { getHeadingLevel, getTab, groupBy, toHeading } from "./textUtils";
 
 export class LogbookRenderer {
@@ -25,7 +25,7 @@ export class LogbookRenderer {
       .map((tag) => `#${prefix}${tag}`)
       .join(" ");
 
-    const taskTitle = `[${task.title}](things:///show?id=${task.uuid}) ${tags}`.trimEnd()
+    const taskTitle = `[${task.title}](omnifocus:///${task.uuid}) ${tags}`.trimEnd()
 
     const notes = this.settings.doesSyncNoteBody
       ? String(task.notes || "")
@@ -49,7 +49,7 @@ export class LogbookRenderer {
 
   public render(tasks: ITask[]): string {
     const { sectionHeading, doesSyncProject, doesAddNewlineBeforeHeadings } = this.settings;
-    const headings = groupBy<ITask>(tasks, (task) => task.area || (doesSyncProject ? task.project : "") || "");
+    const headings = groupBy<ITask>(tasks, (task) => task.folder || "");
     const headingLevel = getHeadingLevel(sectionHeading);
 
     const output = [sectionHeading];
