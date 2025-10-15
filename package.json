@@ -1,8 +1,8 @@
 {
-  "name": "obsidian-things-logbook-plugin",
-  "version": "0.2.0",
-  "description": "Sync Things.app Logbook with Obsidian",
-  "author": "liamcain",
+  "name": "obsidian-omnifocus-logbook-plugin",
+  "version": "1.0.0",
+  "description": "Sync OmniFocus completed and dropped actions with Obsidian",
+  "author": "Denton Jacobs",
   "main": "main.js",
   "license": "MIT",
   "scripts": {
