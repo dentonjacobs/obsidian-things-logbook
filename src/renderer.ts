@@ -25,7 +25,7 @@ export class LogbookRenderer {
       .map((tag) => `#${prefix}${tag}`)
       .join(" ");
 
-    const taskTitle = `[${task.title}](omnifocus:///${task.uuid}) ${tags}`.trimEnd()
+    const taskTitle = `[${task.title}](omnifocus://${task.uuid}) ${tags}`.trimEnd()
 
     const notes = this.settings.doesSyncNoteBody
       ? String(task.notes || "")

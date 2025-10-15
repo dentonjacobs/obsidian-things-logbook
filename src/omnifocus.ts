@@ -38,10 +38,24 @@ export interface IChecklistItemRecord {
   taskId: string;
   title: string;
   state: number;
+  dateCompleted: number;
 }
 
 // OmniFocus database path
 const omnifocusSqlitePath = OMNIFOCUS_DB_PATH.replace("~", os.homedir());
+
+// OmniFocus uses Core Data timestamps (seconds since 2001-01-01)
+// Unix uses timestamps (seconds since 1970-01-01)
+// The difference is 978307200 seconds
+const CORE_DATA_EPOCH_OFFSET = 978307200;
+
+function unixToOmniFocusTimestamp(unixTimestamp: number): number {
+  return unixTimestamp - CORE_DATA_EPOCH_OFFSET;
+}
+
+function omniFocusToUnixTimestamp(omniFocusTimestamp: number): number {
+  return omniFocusTimestamp + CORE_DATA_EPOCH_OFFSET;
+}
 
 export class OmniFocusSQLiteSyncError extends Error {}
 
@@ -64,7 +78,7 @@ export function buildTasksFromSQLRecords(
     } else {
       tasks[id] = {
         ...other,
-        stopDate: dateCompleted,
+        stopDate: omniFocusToUnixTimestamp(dateCompleted),
         startDate: 0, // OmniFocus doesn't track start date the same way
         cancelled: STATE_DROPPED === state,
         title: (title || "").trimEnd(),
@@ -102,7 +116,7 @@ async function getTasksFromOmniFocusDb(
     `SELECT
         Task.persistentIdentifier as uuid,
         Task.name as title,
-        Task.noteXMLData as notes,
+        Task.note as notes,
         Task.dateCompleted as dateCompleted,
         Task.taskState as state,
         Folder.name as folder,
@@ -137,11 +151,13 @@ async function getChecklistItemsOmniFocusDb(
         Task.persistentIdentifier as uuid,
         Task.parent as taskId,
         Task.name as title,
-        Task.taskState as state
+        Task.taskState as state,
+        Task.dateCompleted as dateCompleted
     FROM
         Task
     WHERE
         Task.parent IS NOT NULL
+        AND Task.dateCompleted IS NOT NULL
         AND Task.dateCompleted > ${latestSyncTime}
         AND Task.name IS NOT NULL
         AND Task.name != ""
@@ -157,7 +173,7 @@ export async function getTasksFromOmniFocusLogbook(
 ): Promise<ITaskRecord[]> {
   const taskRecords: ITaskRecord[] = [];
   let isSyncCompleted = false;
-  let stopTime = window.moment.unix(latestSyncTime).startOf("day").unix();
+  let stopTime = unixToOmniFocusTimestamp(window.moment.unix(latestSyncTime).startOf("day").unix());
 
   try {
     while (!isSyncCompleted) {
@@ -186,7 +202,7 @@ export async function getChecklistItemsFromOmniFocusLogbook(
 ): Promise<IChecklistItemRecord[]> {
   const checklistItems: IChecklistItemRecord[] = [];
   let isSyncCompleted = false;
-  let stopTime = latestSyncTime;
+  let stopTime = unixToOmniFocusTimestamp(latestSyncTime);
 
   try {
     while (!isSyncCompleted) {
@@ -197,7 +213,7 @@ export async function getChecklistItemsFromOmniFocusLogbook(
       const batch = await getChecklistItemsOmniFocusDb(stopTime);
 
       isSyncCompleted = batch.length < TASK_FETCH_LIMIT;
-      stopTime = batch.filter((t) => t.state === 1 || t.state === 2).last()?.state;
+      stopTime = batch.filter((t) => t.dateCompleted).last()?.dateCompleted;
 
       checklistItems.push(...batch);
       console.debug(
