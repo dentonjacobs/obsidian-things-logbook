@@ -1,9 +1,9 @@
 {
   "id": "omnifocus-logbook",
   "name": "OmniFocus Logbook",
-  "description": "Sync your OmniFocus completed items with daily notes",
+  "description": "Sync your OmniFocus completed and dropped actions with daily notes",
   "version": "0.0.1",
-  "author": "Denton jacobs",
+  "author": "dentonjacobs",
   "authorUrl": "https://github.com/dentonjacobs/",
   "isDesktopOnly": true,
   "minAppVersion": "1.0.0"

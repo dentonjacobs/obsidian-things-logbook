@@ -1,6 +1,6 @@
 import { App, PluginSettingTab, Setting, moment } from "obsidian";
 
-import type ThingsLogbookPlugin from "./index";
+import type OmniFocusLogbookPlugin from "./index";
 
 export const DEFAULT_SECTION_HEADING = "## Logbook";
 export const DEFAULT_SYNC_FREQUENCY_SECONDS = 30 * 60; // Every 30 minutes
@@ -35,10 +35,10 @@ export const DEFAULT_SETTINGS = Object.freeze({
   canceledMark: DEFAULT_CANCELLED_MARK
 });
 
-export class ThingsLogbookSettingsTab extends PluginSettingTab {
-  private plugin: ThingsLogbookPlugin;
+export class OmniFocusLogbookSettingsTab extends PluginSettingTab {
+  private plugin: OmniFocusLogbookPlugin;
 
-  constructor(app: App, plugin: ThingsLogbookPlugin) {
+  constructor(app: App, plugin: OmniFocusLogbookPlugin) {
     super(app, plugin);
     this.plugin = plugin;
   }
@@ -62,7 +62,6 @@ export class ThingsLogbookSettingsTab extends PluginSettingTab {
     this.addSyncEnabledSetting();
     this.addSyncIntervalSetting();
     this.addDoesSyncNoteBodySetting();
-    this.addDoesSyncProjectSetting();
   }
 
   addSectionHeadingSetting(): void {
@@ -94,7 +93,7 @@ export class ThingsLogbookSettingsTab extends PluginSettingTab {
   addDoesSyncNoteBodySetting(): void {
     new Setting(this.containerEl)
       .setName("Include notes")
-      .setDesc('Includes MD notes of a task into the synced Obsidian document')
+      .setDesc('Includes MD notes of an action into the synced Obsidian document')
       .addToggle((toggle) => {
         toggle.setValue(this.plugin.options.doesSyncNoteBody);
         toggle.onChange(async (doesSyncNoteBody) => {
@@ -104,15 +103,8 @@ export class ThingsLogbookSettingsTab extends PluginSettingTab {
   }
 
   addDoesSyncProjectSetting(): void {
-    new Setting(this.containerEl)
-        .setName("Include project")
-        .setDesc("If the Things task belongs to a project, use project name as header instead of area")
-        .addToggle((toggle) => {
-          toggle.setValue(this.plugin.options.doesSyncProject);
-          toggle.onChange(async (doesSyncProject) => {
-            this.plugin.writeOptions({ doesSyncProject })
-          });
-        });
+    // This setting is deprecated for OmniFocus as we use folders instead
+    // Keep for backwards compatibility but it's not used
   }
 
   addSyncIntervalSetting(): void {
@@ -134,7 +126,7 @@ export class ThingsLogbookSettingsTab extends PluginSettingTab {
     new Setting(this.containerEl)
       .setName("Tag Prefix")
       .setDesc(
-        "Prefix added to Things tags when imported into Obsidian (e.g. #logbook/work)"
+        "Prefix added to OmniFocus tags when imported into Obsidian (e.g. #logbook/work)"
       )
       .addText((textfield) => {
         textfield.setValue(this.plugin.options.tagPrefix);
@@ -148,7 +140,7 @@ export class ThingsLogbookSettingsTab extends PluginSettingTab {
     new Setting(this.containerEl)
         .setName("Canceled Mark")
         .setDesc(
-            "Mark character to use for canceled tasks"
+            "Mark character to use for dropped actions (default: 'c')"
         )
         .addText((textfield) => {
           textfield.setValue(this.plugin.options.canceledMark);
@@ -161,7 +153,7 @@ export class ThingsLogbookSettingsTab extends PluginSettingTab {
   addDoesAddNewlineBeforeHeadingsSetting(): void {
     new Setting(this.containerEl)
         .setName("Empty line before headings")
-        .setDesc("When grouping tasks with headings by area or project, add an empty line before that heading")
+        .setDesc("When grouping actions with headings by folder, add an empty line before that heading")
         .addToggle((toggle) => {
           toggle.setValue(this.plugin.options.doesAddNewlineBeforeHeadings);
           toggle.onChange(async (doesAddNewlineBeforeHeadings) => {
@@ -200,7 +192,7 @@ export class ThingsLogbookSettingsTab extends PluginSettingTab {
         })
         .addExtraButton(component => {
           component.setIcon('lucide-info');
-          component.setTooltip('Reseting the sync history will cause Things Logbook to rewrite rewrite the Logbook to all existing daily notes.');
+          component.setTooltip('Reseting the sync history will cause OmniFocus Logbook to rewrite the Logbook to all existing daily notes.');
         });
   }
 }
