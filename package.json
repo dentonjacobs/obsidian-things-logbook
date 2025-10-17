@@ -1,8 +1,8 @@
 {
-  "name": "obsidian-things-logbook-plugin",
-  "version": "0.2.0",
-  "description": "Sync Things.app Logbook with Obsidian",
-  "author": "liamcain",
+  "name": "obsidian-omnifocus-logbook-plugin",
+  "version": "0.0.1",
+  "description": "Sync your OmniFocus completed items with daily notes",
+  "author": "dentonjacobs",
   "main": "main.js",
   "license": "MIT",
   "scripts": {
