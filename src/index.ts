@@ -11,15 +11,15 @@ import { LogbookRenderer } from "./renderer";
 import {
   DEFAULT_SETTINGS,
   ISettings,
-  ThingsLogbookSettingsTab,
+  OmniFocusLogbookSettingsTab,
 } from "./settings";
 
 import {
   buildTasksFromSQLRecords,
-  getChecklistItemsFromThingsLogbook,
-  getTasksFromThingsLogbook,
+  getChecklistItemsFromOmniFocusLogbook,
+  getTasksFromOmniFocusLogbook,
   ITask,
-} from "./things";
+} from "./omnifocus";
 import { groupBy, isMacOS, updateSection } from "./textUtils";
 
 declare global {
@@ -28,15 +28,15 @@ declare global {
   }
 }
 
-export default class ThingsLogbookPlugin extends Plugin {
+export default class OmniFocusLogbookPlugin extends Plugin {
   public options: ISettings;
   private syncTimeoutId: number;
-  private settingsTab: ThingsLogbookSettingsTab;
+  private settingsTab: OmniFocusLogbookSettingsTab;
 
   async onload(): Promise<void> {
     if (!isMacOS()) {
       console.info(
-        "Failed to load Things Logbook plugin. Platform not supported"
+        "Failed to load OmniFocus Logbook plugin. Platform not supported"
       );
       return;
     }
@@ -47,14 +47,14 @@ export default class ThingsLogbookPlugin extends Plugin {
     this.tryToSyncLogbook = this.tryToSyncLogbook.bind(this);
 
     this.addCommand({
-      id: "sync-things-logbook",
+      id: "sync-omnifocus-logbook",
       name: "Sync",
       callback: () => setTimeout(this.tryToSyncLogbook, 20),
     });
 
     await this.loadOptions();
 
-    this.settingsTab = new ThingsLogbookSettingsTab(this.app, this);
+    this.settingsTab = new OmniFocusLogbookSettingsTab(this.app, this);
     this.addSettingTab(this.settingsTab);
 
     if (this.options.hasAcceptedDisclaimer && this.options.isSyncEnabled) {
@@ -79,7 +79,7 @@ export default class ThingsLogbookPlugin extends Plugin {
           this.syncLogbook();
         },
         text:
-          "Enabling sync will backfill your entire Things Logbook into Obsidian. This means potentially creating or modifying hundreds of notes. Make sure to test the plugin in a test vault before continuing.",
+          "Enabling sync will backfill your entire OmniFocus Logbook into Obsidian. This means potentially creating or modifying hundreds of notes. Make sure to test the plugin in a test vault before continuing.",
         title: "Sync Now?",
       }).open();
     }
@@ -101,7 +101,7 @@ export default class ThingsLogbookPlugin extends Plugin {
           this.settingsTab.display();
         },
         text:
-          "Enabling sync will backfill your entire Things Logbook into Obsidian. This means potentially creating or modifying hundreds of notes. Make sure to test the plugin in a test vault before continuing.",
+          "Enabling sync will backfill your entire OmniFocus Logbook into Obsidian. This means potentially creating or modifying hundreds of notes. Make sure to test the plugin in a test vault before continuing.",
         title: "Sync Now?",
       }).open();
     }
@@ -115,12 +115,12 @@ export default class ThingsLogbookPlugin extends Plugin {
     let taskRecords = [];
     let checklistRecords = [];
     try {
-      taskRecords = await getTasksFromThingsLogbook(latestSyncTime);
-      checklistRecords = await getChecklistItemsFromThingsLogbook(
+      taskRecords = await getTasksFromOmniFocusLogbook(latestSyncTime);
+      checklistRecords = await getChecklistItemsFromOmniFocusLogbook(
         latestSyncTime
       );
     } catch (err) {
-      new Notice("Things Logbook sync failed");
+      new Notice("OmniFocus Logbook sync failed");
       return;
     }
 
@@ -150,7 +150,7 @@ export default class ThingsLogbookPlugin extends Plugin {
       );
     }
 
-    new Notice("Things Logbook sync complete");
+    new Notice("OmniFocus Logbook sync complete");
     this.writeOptions({ latestSyncTime: window.moment().unix() });
     this.scheduleNextSync();
   }
@@ -166,7 +166,7 @@ export default class ThingsLogbookPlugin extends Plugin {
 
     this.cancelScheduledSync();
     if (!this.options.isSyncEnabled || !this.options.syncInterval) {
-      console.debug("[Things Logbook] scheduling skipped, no syncInterval set");
+      console.debug("[OmniFocus Logbook] scheduling skipped, no syncInterval set");
       return;
     }
 
@@ -174,7 +174,7 @@ export default class ThingsLogbookPlugin extends Plugin {
     const syncIntervalMs = syncInterval * 1000;
     const nextSync = Math.max(latestSyncTime + syncIntervalMs - now, 20);
 
-    console.debug(`[Things Logbook] next sync scheduled in ${nextSync}ms`);
+    console.debug(`[OmniFocus Logbook] next sync scheduled in ${nextSync}ms`);
     this.syncTimeoutId = window.setTimeout(this.syncLogbook, nextSync);
   }
 
