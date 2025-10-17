@@ -1,10 +1,10 @@
 {
-  "id": "things-logbook",
-  "name": "Things Logbook",
-  "description": "Sync your Things.app Logbook with daily notes",
-  "version": "0.2.0",
-  "author": "Liam Cain",
-  "authorUrl": "https://github.com/liamcain/",
+  "id": "omnifocus-logbook",
+  "name": "OmniFocus Logbook",
+  "description": "Sync your OmniFocus completed items with daily notes",
+  "version": "0.0.1",
+  "author": "Denton jacobs",
+  "authorUrl": "https://github.com/dentonjacobs/",
   "isDesktopOnly": true,
-  "minAppVersion": "0.10.8"
+  "minAppVersion": "1.0.0"
 }
