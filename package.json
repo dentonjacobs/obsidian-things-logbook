@@ -1,6 +1,6 @@
 {
   "name": "obsidian-omnifocus-logbook-plugin",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Sync your OmniFocus completed items with daily notes",
   "author": "dentonjacobs",
   "main": "main.js",
